@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>E-Commerce Website</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+body{background:#f4f4f4;}
+
+nav{
+display:flex;justify-content:space-between;align-items:center;
+background:#111;color:#fff;padding:15px 20px;position:sticky;top:0;z-index:1000;
+}
+nav a{color:white;margin:0 10px;text-decoration:none;cursor:pointer;}
+nav a:hover{color:orange}
+
+.container{padding:20px;}
+.section{display:none;}
+.active{display:block;}
+
+.hero{
+height:220px;
+background:linear-gradient(to right,#ff6a00,#ee0979);
+color:white;
+display:flex;align-items:center;justify-content:center;
+font-size:32px;
+border-radius:12px;
+font-weight:bold;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;margin-top:20px;
+}
+
+.card{
+background:white;padding:10px;border-radius:10px;
+box-shadow:0 0 8px rgba(0,0,0,0.1);
+cursor:pointer;
+transition:0.3s;
+}
+.card:hover{transform:scale(1.03)}
+
+.card img{
+width:100%;
+height:160px;
+object-fit:cover;
+border-radius:10px;
+}
+
+button{
+padding:8px 12px;background:orange;border:none;color:white;
+cursor:pointer;border-radius:5px;margin-top:5px;
+}
+
+footer{
+background:#111;color:white;text-align:center;padding:15px;margin-top:20px;
+}
+
+#scrollTop{
+position:fixed;bottom:20px;right:20px;padding:10px 15px;
+background:black;color:white;border:none;border-radius:50%;display:none;
+}
+
+input,select,textarea{
+padding:8px;margin:5px;width:100%;
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+<div><b>MyShop Pro</b></div>
+<div>
+<a onclick="show('home')">Home</a>
+<a onclick="show('products')">Products</a>
+<a onclick="show('cart')">Cart</a>
+<a onclick="show('about')">About</a>
+<a onclick="show('contact')">Contact</a>
+<a onclick="show('search')">Search</a>
+</div>
+</nav>
+
+<!-- HOME -->
+<div id="home" class="section active container">
+<div class="hero">Welcome to MyShop Pro 🛍️</div>
+
+<h2>Shop by Category</h2>
+<div class="grid">
+<div class="card" onclick="filterCat('Electronics')">Electronics</div>
+<div class="card" onclick="filterCat('Fashion')">Fashion</div>
+<div class="card" onclick="filterCat('Grocery')">Grocery</div>
+</div>
+
+<h2>Latest Products</h2>
+<div class="grid" id="homeProducts"></div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="products" class="section container">
+<h2>Products</h2>
+
+<select onchange="filterProducts()" id="catFilter">
+<option value="All">All</option>
+<option>Electronics</option>
+<option>Fashion</option>
+<option>Grocery</option>
+</select>
+
+<input type="range" min="100" max="5000" value="5000" id="priceRange" oninput="filterProducts()">
+
+<div class="grid" id="productList"></div>
+</div>
+
+<!-- PRODUCT VIEW -->
+<div id="view" class="section container"></div>
+
+<!-- CART -->
+<div id="cart" class="section container">
+<h2>Cart</h2>
+<div id="cartItems"></div>
+<h3 id="total"></h3>
+<button onclick="show('checkout')">Checkout</button>
+</div>
+
+<!-- CHECKOUT -->
+<div id="checkout" class="section container">
+<h2>Checkout</h2>
+
+<h3>Order Summary: <span id="orderTotal"></span></h3>
+
+<input id="name" placeholder="Name">
+<input id="address" placeholder="Address">
+<input id="phone" placeholder="Phone">
+
+<button onclick="placeOrder()">Place Order</button>
+</div>
+
+<!-- ORDER -->
+<div id="order" class="section container">
+<h2>🎉 Order Confirmed</h2>
+<p>Order No: <span id="orderNo"></span></p>
+<p>Status: Processing</p>
+</div>
+
+<!-- ABOUT -->
+<div id="about" class="section container">
+<h2>About Us</h2>
+<p>We deliver premium online shopping experience.</p>
+<div class="grid">
+<div class="card">🚀 Fast Delivery</div>
+<div class="card">💯 Best Quality</div>
+<div class="card">📞 24/7 Support</div>
+</div>
+</div>
+
+<!-- CONTACT -->
+<div id="contact" class="section container">
+<h2>Contact Us</h2>
+<input id="cname" placeholder="Name">
+<input id="cemail" placeholder="Email">
+<textarea id="cmsg" placeholder="Message"></textarea>
+<button onclick="validateContact()">Submit</button>
+</div>
+
+<!-- SEARCH -->
+<div id="search" class="section container">
+<h2>Search Products</h2>
+<input onkeyup="searchProducts(this.value)" placeholder="Search products...">
+<div class="grid" id="searchResults"></div>
+</div>
+
+<footer>
+© 2026 MyShop Pro | All Rights Reserved
+</footer>
+
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+
+/* ===================== PRODUCTS (REAL IMAGES) ===================== */
+
+let products = [
+{
+name:"iPhone 15 Pro",
+cat:"Electronics",
+price:1200,
+img:"https://images.unsplash.com/photo-1696446701210-7b6f7f2a3f2e?auto=format&fit=crop&w=500&q=60"
+},
+{
+name:"MacBook Pro",
+cat:"Electronics",
+price:3500,
+img:"https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=500&q=60"
+},
+{
+name:"Nike Shoes",
+cat:"Fashion",
+price:500,
+img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=60"
+},
+{
+name:"Smart Watch",
+cat:"Electronics",
+price:800,
+img:"https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=60"
+},
+{
+name:"Headphones",
+cat:"Electronics",
+price:600,
+img:"https://images.unsplash.com/photo-1518441902117-f0a9d4f3f5f0?auto=format&fit=crop&w=500&q=60"
+},
+{
+name:"T-Shirt",
+cat:"Fashion",
+price:300,
+img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=500&q=60"
+},
+{
+name:"Fresh Fruits",
+cat:"Grocery",
+price:200,
+img:"https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=500&q=60"
+},
+{
+name:"Rice Bag",
+cat:"Grocery",
+price:150,
+img:"https://images.unsplash.com/photo-1607305387299-a3d9611cd469?auto=format&fit=crop&w=500&q=60"
+}
+];
+
+let cart = [];
+
+/* ===================== NAVIGATION ===================== */
+
+function show(id){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+render();
+}
+
+/* ===================== RENDER ===================== */
+
+function render(){
+let p=document.getElementById("productList");
+
+if(p){
+p.innerHTML="";
+
+products.forEach(prod=>{
+if(prod.price<=document.getElementById("priceRange").value &&
+(document.getElementById("catFilter").value=="All" || prod.cat==document.getElementById("catFilter").value)){
+p.innerHTML+=card(prod);
+}
+});
+}
+
+renderHome();
+renderCart();
+}
+
+function renderHome(){
+let h=document.getElementById("homeProducts");
+h.innerHTML="";
+products.slice(0,4).forEach(p=>{
+h.innerHTML+=card(p);
+});
+}
+
+/* ===================== CARD ===================== */
+
+function card(p){
+return `
+<div class="card">
+<img src="${p.img}">
+<h4>${p.name}</h4>
+<p>${p.cat}</p>
+<p>₹${p.price}</p>
+<button onclick='addCart("${p.name}")'>Add to Cart</button>
+<button onclick='viewProduct("${p.name}")'>View</button>
+</div>`;
+}
+
+/* ===================== CART ===================== */
+
+function addCart(name){
+let item=products.find(p=>p.name==name);
+cart.push(item);
+alert("Added to cart");
+renderCart();
+}
+
+function renderCart(){
+let c=document.getElementById("cartItems");
+if(!c) return;
+
+c.innerHTML="";
+let total=0;
+
+cart.forEach(item=>{
+total+=item.price;
+c.innerHTML+=`<p>${item.name} - ₹${item.price}</p>`;
+});
+
+document.getElementById("total").innerText="Total: ₹"+total;
+document.getElementById("orderTotal").innerText="₹"+total;
+}
+
+/* ===================== PRODUCT VIEW ===================== */
+
+function viewProduct(name){
+let p=products.find(x=>x.name==name);
+
+document.getElementById("view").innerHTML=`
+<div class="card">
+<img src="${p.img}">
+<h2>${p.name}</h2>
+<p>${p.cat}</p>
+<h3>₹${p.price}</h3>
+<button onclick='addCart("${p.name}")'>Add to Cart</button>
+</div>`;
+
+show('view');
+}
+
+/* ===================== FILTER ===================== */
+
+function filterProducts(){render();}
+
+function filterCat(cat){
+document.getElementById("catFilter").value=cat;
+show('products');
+render();
+}
+
+/* ===================== ORDER ===================== */
+
+function placeOrder(){
+if(!document.getElementById("name").value){
+alert("Fill details");
+return;
+}
+
+document.getElementById("orderNo").innerText=Math.floor(Math.random()*100000);
+cart=[];
+show('order');
+}
+
+/* ===================== CONTACT ===================== */
+
+function validateContact(){
+let n=document.getElementById("cname").value;
+let e=document.getElementById("cemail").value;
+
+if(!n || !e){
+alert("Fill all fields");
+return;
+}
+alert("Message Sent Successfully!");
+}
+
+/* ===================== SEARCH ===================== */
+
+function searchProducts(q){
+let r=document.getElementById("searchResults");
+r.innerHTML="";
+
+products.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()))
+.forEach(p=>r.innerHTML+=card(p));
+}
+
+/* ===================== SCROLL BUTTON ===================== */
+
+window.onscroll=function(){
+document.getElementById("scrollTop").style.display=
+window.scrollY>200?"block":"none";
+}
+
+/* INIT */
+render();
+
+</script>
+
+</body>
+</html>

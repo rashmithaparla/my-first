@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ShopX - Amazon Style Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#eaeded;
+}
+
+/* NAVBAR */
+.navbar{
+background:#131921;
+color:white;
+display:flex;
+align-items:center;
+padding:10px;
+gap:15px;
+position:sticky;
+top:0;
+}
+
+.logo{
+font-size:20px;
+font-weight:bold;
+color:#ff9900;
+}
+
+.search{
+flex:1;
+display:flex;
+}
+
+.search input{
+width:100%;
+padding:8px;
+border:none;
+}
+
+.search button{
+background:#ff9900;
+border:none;
+padding:8px 12px;
+cursor:pointer;
+}
+
+/* BANNER */
+.banner{
+background:url('https://images.unsplash.com/photo-1607082349566-187342175e2f');
+background-size:cover;
+height:250px;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:30px;
+font-weight:bold;
+}
+
+/* CATEGORY */
+.categories{
+display:flex;
+gap:10px;
+padding:15px;
+overflow:auto;
+}
+
+.cat{
+background:white;
+padding:10px;
+min-width:120px;
+text-align:center;
+border-radius:8px;
+}
+
+/* PRODUCTS */
+.products{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+padding:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+text-align:center;
+box-shadow:0 0 5px rgba(0,0,0,0.1);
+}
+
+.card button{
+background:#ff9900;
+border:none;
+padding:8px;
+width:100%;
+cursor:pointer;
+}
+
+/* CART */
+.cart{
+position:fixed;
+right:10px;
+top:70px;
+background:white;
+padding:10px;
+width:250px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+/* FOOTER */
+.footer{
+background:#131921;
+color:white;
+text-align:center;
+padding:20px;
+margin-top:20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+<div class="logo">ShopX</div>
+
+<div class="search">
+<input placeholder="Search products...">
+<button>Search</button>
+</div>
+
+<div>Cart 🛒 <span id="count">0</span></div>
+</div>
+
+<div class="banner">
+Big Deals Today 🔥
+</div>
+
+<div class="categories">
+<div class="cat">Electronics</div>
+<div class="cat">Fashion</div>
+<div class="cat">Mobiles</div>
+<div class="cat">Home</div>
+</div>
+
+<h2 style="padding:10px;">Trending Products</h2>
+
+<div class="products" id="productBox"></div>
+
+<div class="cart">
+<h3>Cart</h3>
+<div id="cartBox"></div>
+<h4 id="total"></h4>
+</div>
+
+<div class="footer">
+© 2026 ShopX | Amazon Style UI
+</div>
+
+<script>
+let products=[
+{name:"Phone",price:15000},
+{name:"Laptop",price:55000},
+{name:"Watch",price:5000},
+{name:"Shoes",price:2000}
+];
+
+let cart=[];
+
+function load(){
+let html="";
+products.forEach((p,i)=>{
+html+=`
+<div class="card">
+<h3>${p.name}</h3>
+<p>₹${p.price}</p>
+<button onclick="add(${i})">Add to Cart</button>
+</div>`;
+});
+document.getElementById("productBox").innerHTML=html;
+}
+
+function add(i){
+cart.push(products[i]);
+document.getElementById("count").innerText=cart.length;
+update();
+}
+
+function update(){
+let h=0;
+let html="";
+cart.forEach(p=>{
+h+=p.price;
+html+=`<p>${p.name} - ₹${p.price}</p>`;
+});
+document.getElementById("cartBox").innerHTML=html;
+document.getElementById("total").innerText="Total ₹"+h;
+}
+
+load();
+</script>
+
+</body>
+</html>
